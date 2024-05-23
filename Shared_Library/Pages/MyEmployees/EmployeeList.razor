@@ -1,0 +1,84 @@
+﻿@* @page "/employees" *@
+@* @inject IEmployeeService EmployeeService *@
+@inject NavigationManager _NavigationManager
+@inject HttpClient _Http
+
+<div class="col-8 m-4">
+<h3>EmployeeList</h3>
+
+
+
+<button class="btn btn-primary" @onclick="AddEmp">Add Employee</button>
+
+
+@if (employees.Count == 0)
+{
+    <p><em>Loading.....</em></p>
+}
+else
+{
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Emp Id</th>
+                <th>Employee Name</th>
+                <th>Designation</th>
+                <th>City</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in employees)
+            {
+                <tr>
+                    <td>@emp.Id</td>
+                    <td>@emp.Name</td>
+                    <td>@emp.Designation</td>
+                    <td>@emp.City</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="@(() => EditEmp(@emp.Id))">Edit</button>
+
+                        <button class="btn btn-danger" @onclick="@(() => DeleteEmp(@emp.Id))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+   
+
+}
+</div>
+
+@code {
+    List<Employee> employees = new List<Employee>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await LoadEmp();
+    }
+
+    void AddEmp()
+    {
+        _NavigationManager.NavigateTo("edit-employee");
+    }
+
+    void EditEmp(int id)
+    {
+        _NavigationManager.NavigateTo($"edit-employee/{id}");
+    }
+
+    async Task DeleteEmp(int id)
+    {
+        await _Http.DeleteAsync($"api/employee/{id}");
+        await LoadEmp();
+    }
+
+    async Task LoadEmp()
+    {
+        var result = await _Http.GetFromJsonAsync<List<Employee>>("api/employee");
+        if (result is not null)
+            employees = result;
+    }
+}
+

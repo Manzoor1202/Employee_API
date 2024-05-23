@@ -1,0 +1,65 @@
+﻿@* @page "/edit-employee"
+@page "/edit-employee/{id:int}" *@
+@inject HttpClient _Http
+@inject NavigationManager _NavigationManager
+
+<div class="col-8 m-4">
+@if (Id == null)
+{
+    <h3>Add Employee</h3>
+}
+else
+{
+    <h3>Edit</h3>
+}
+</div>
+
+<EditForm Model="Emp" OnSubmit="HandleSubmit">
+    <div class="col-8 m-4">
+    <div>
+        <label for="Name">Name</label>
+        <InputText id="Name" @bind-Value="Emp.Name" class="form-control" />
+    </div>
+    <div>
+        <label for="Designation">Designation</label>
+        <InputText id="Designation" @bind-Value="Emp.Designation" class="form-control" />
+    </div>
+    <div>
+        <label for="City">City</label>
+        <InputText id="City" @bind-Value="Emp.City" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    public Employee Emp { get; set; } = new Employee();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await _Http.GetFromJsonAsync<Employee>($"api/employee/{(int)Id}");
+            if (result is not null)
+                Emp = result;
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id != null)
+        {
+            var result = await _Http.PutAsJsonAsync($"api/employee/{Id}", Emp);
+            Emp = await result.Content.ReadFromJsonAsync<Employee>();
+            _NavigationManager.NavigateTo("employees");
+        }
+        else
+        {
+            var result = await _Http.PostAsJsonAsync("api/employee", Emp);
+            Emp = await result.Content.ReadFromJsonAsync<Employee>();
+            _NavigationManager.NavigateTo("employees");
+        }
+    }
+}

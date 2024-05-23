@@ -1,0 +1,27 @@
+﻿@page "/deleteemployee/{Id}"
+@inject IEmployeeService employeeService
+@inject NavigationManager _NavigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Delete Employee</h3>
+
+<p>Are you sure you want to delete this employee?</p>
+<button class="btn btn-danger" @onclick="Delete">Delete</button>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private async Task Delete()
+    {
+        var result = await employeeService.DeleteEmployee(Id);
+        if (result != null)
+        {
+            _NavigationManager.NavigateTo("/employees");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

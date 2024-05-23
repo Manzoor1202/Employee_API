@@ -1,0 +1,41 @@
+﻿@page "/addemployee"
+@inject IEmployeeService employeeService
+@inject NavigationManager _NavigationManager
+@attribute [Authorize(Roles = "Admin")]
+<h3>Add Employee</h3>
+
+<EditForm Model="@employee" OnValidSubmit="@CreateEmployee">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" @bind-Value="employee.Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="designation">Designation:</label>
+        <InputText id="designation" @bind-Value="employee.Designation" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="city">City:</label>
+        <InputText id="city" @bind-Value="employee.City" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    Employee employee = new Employee();
+
+    private async Task CreateEmployee()
+    {
+        var result = await employeeService.AddEmployee(employee);
+        if (result != null)
+        {
+            _NavigationManager.NavigateTo("/employees");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

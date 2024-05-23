@@ -1,0 +1,52 @@
+﻿@inherits LayoutComponentBase
+ @inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+ @inject NavigationManager NavManager
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    Welcome, @context.User.Identity.Name
+                    <button class="btn btn-danger" @onclick="Logout"> Logout</button>
+                </Authorized>
+                <NotAuthorized>
+                    Welcome, Guest
+                    <div style="margin-left: 10px;"></div>
+                    <button class="btn btn-primary" @onclick="Register"> Register</button>
+                    <div style="margin-left: 10px;"></div> <!-- Add space between buttons -->
+                    <button class="btn btn-primary" @onclick="Login"> Login</button>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div> 
+
+@code {
+
+    private async Task Logout()
+    {
+        var customAuthStateProvider = (CustomAuthStateProvider)AuthStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(null!);
+        NavManager.NavigateTo("/login");
+    }
+
+    void Register()
+    {
+        NavManager.NavigateTo("/register");
+    }
+    void Login()
+    {
+        NavManager.NavigateTo("/login");
+    }
+}

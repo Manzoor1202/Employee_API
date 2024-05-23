@@ -1,0 +1,79 @@
+﻿@page "/employees"
+@using Microsoft.AspNetCore.Authorization
+@inject IEmployeeService employeeService
+@inject NavigationManager _NavigationManager
+@attribute [Authorize]
+
+<h3>Employee List</h3>
+
+<button class="btn btn-primary" @onclick="AddEmp">Add Employee</button>
+
+@if (employees == null)
+{
+    <p>Loading...</p>
+}
+else if (employees.Count == 0)
+{
+    <p>No employees found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>City</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in employees)
+            {
+                <tr>
+                    <td>@employee.Id</td>
+                    <td>@employee.Name</td>
+                    <td>@employee.Designation</td>
+                    <td>@employee.City</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" @onclick="() => EditEmployee(employee.Id)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteEmployee(employee.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Employee> employees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await employeeService.GetAllEmployees();
+    }
+
+    void AddEmp()
+    {
+        _NavigationManager.NavigateTo("addemployee");
+    }
+
+    private void EditEmployee(int id)
+    {
+        _NavigationManager.NavigateTo($"/editemployee/{id}");
+    }
+
+    private async Task DeleteEmployee(int id)
+    {
+        var result = await employeeService.DeleteEmployee(id);
+        if (result != null)
+        {
+            employees = result;
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

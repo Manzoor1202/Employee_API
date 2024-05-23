@@ -1,0 +1,57 @@
+﻿@page "/editemployee/{id:int}"
+@inject IEmployeeService employeeService
+@inject NavigationManager _NavigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Edit Employee</h3>
+
+@if (employee != null)
+{
+    <EditForm Model="employee" OnValidSubmit="@UpdateEmployee">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <InputText id="name" @bind-Value="employee.Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="designation">Designation:</label>
+            <InputText id="designation" @bind-Value="employee.Designation" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="city">City:</label>
+            <InputText id="city" @bind-Value="employee.City" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </EditForm>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    Employee employee;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employee = await employeeService.GetEmployeeById(Id);
+    }
+
+    private async Task UpdateEmployee()
+    {
+        var result = await employeeService.UpdateEmployee(Id, employee);
+        if (result != null)
+        {
+            _NavigationManager.NavigateTo("/employees");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}
